@@ -1,2 +1,3 @@
 This folder contains the files used to run the ANVI'O (v7.1) metagenomic workflow ( https://anvio.org/help/main/workflows/metagenomics/ ) on whole metagenome sequencing raw reads from the IODP expedition 385 sediment incubations.
 A schematic overview of the workflow detailing the processes included in the run, can be viewed in workflow_anvio_IODP-ENR.png
+Metagenomic bins from the workflow presented in the article were manually curated using the interactive environment in anvio called for through "anvi-refine" ( https://anvio.org/help/main/programs/anvi-refine/ ).
