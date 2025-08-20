@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#PBS -N runSAMBA
+#PBS -q ftp
+#PBS -l mem=40G
+#PBS -l walltime=100:00:00
+
+#activate nextflow environment
+. /etc/profile.d/modules.sh
+module purge
+. /appli/bioinfo/nextflow/20.04.1/env.sh
+module load singularity/3.4.1
+
+#nextflow temp directory
+export NXF_TEMP=$SCRATCH/.nxf_temp
+
+#import singularity images
+cd $PBS_O_WORKDIR
+cp -u /appli/bioinfo/samba/3.0.1/singularity/*.img containers/
+
+##################################################################################################
+##### DONT FORGET TO CUSTOMIZE SAMBA TO FIT YOUR DATASET                                     #####
+##### NEED TO COMPLETE CUSTOM.CONFIG FILE BEFORE RUNNING OR ADD ARGUMENTS :                  #####
+##### HAVE A LOOK AT https://gitlab.ifremer.fr/bioinfo/SAMBA-nextflow/-/tree/master/docs     #####
+##################################################################################################
+cd $PBS_O_WORKDIR
+
+# First run :
+nextflow run /home1/datawork/ccornet/SAMBA-nextflow/main.nf\
+              -profile singularity,custom\
+              -c /appli/bioinfo/samba/3.0.1/ifremer.config\
+              --projectName IODP_enrichments_v2\
+              --outdir /home1/datawork/ccornet/SAMBA-nextflow/SAMBA_out/IODP_enrichments_v2\
+              -resume \
+              &> /home1/datawork/ccornet/SAMBA-nextflow/SAMBA_logs/IODP_enrichments_v2.log 2>&1
+
+# For re run a previous analysis after params modifications
+#nextflow run main.nf -profile singularity,custom -c /appli/bioinfo/samba/3.0.1/ifremer.config -resume &> samba.log 2>&1
+
+#deactivate nextflow environment and module
+. /appli/bioinfo/nextflow/20.04.1/delenv.sh
+module purge
+
