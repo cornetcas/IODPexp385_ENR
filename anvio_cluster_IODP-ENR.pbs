@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#PBS -q sequentiel
+#PBS -l mem=1G
+#PBS -l walltime=720:00:00
+
+# How to configure job resources ?
+# cf https://w3z.ifremer.fr/bioinfo/Cmdline-Datarmor/Tutoriels/Lancer-un-calcul-bioinfo
+
+########################################
+##      Manage script history         ##
+########################################
+# DO NOT MODIFY
+
+CB_NAME=$(basename $PBS_JOBNAME)
+CB_TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+CB_LOG_FOLDER=$DATAWORK/"$CB_TIMESTAMP"_"$CB_NAME"
+mkdir -p $CB_LOG_FOLDER
+cp $0 $CB_LOG_FOLDER/$CB_NAME
+
+########################################
+##      Load environment              ##
+########################################
+# ADAPT to your tool
+
+. /appli/bioinfo/anvio/7.1/env.sh
+
+########################################
+##      Execute script                ##
+########################################
+
+TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
+LOG="/home1/datawork/ccornet/IODP_ENR_meta/datarmor_logs/anvio_workflow"_"$TIMESTAMP"".log"
+
+anvi-run-workflow -w metagenomics \
+                  -c  /home1/datawork/ccornet/IODP_ENR_meta/anvio_metagenomics_IODP-ENR.json \
+                  --additional-params \
+                      --directory  /home1/datawork/ccornet/IODP_ENR_meta/ \
+                      --cores 16 \
+                      --latency-wait 420 \
+                      --cluster-config /home1/datawork/ccornet/IODP_ENR_meta/cluster_megahit.yml \
+                      --cluster \
+                          "qsub -N {rule} \
+                                -m n \
+                                -q {cluster.queue} \
+                                -l walltime={cluster.walltime} \
+                                -l mem={cluster.memory} \
+                                -l ncpus={threads} \
+                                -V" >> $LOG 2>&1
